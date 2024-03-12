@@ -1,12 +1,20 @@
 import { useState, type FC } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { Button } from "../Button";
-import Input from "../Input";
+import { Input } from "../Input";
 import qencodeIcon from "../../assets/img/main_logo.svg";
+import validate from "../../utils/validate";
 
 const ForgotPassword: FC = () => {
+  const navigate = useNavigate();
+
   const [formState, setFormState] = useState<{ email: string }>({ email: "" });
+  const [errors, setErrors] = useState<{ value: string; error: boolean }>({
+    value: "",
+    error: false,
+  });
+
   const handleChangeInput = (name: string, value: string) => {
     setFormState({
       ...formState,
@@ -14,10 +22,18 @@ const ForgotPassword: FC = () => {
     });
   };
 
+  const handleSubmit = () => {
+    setErrors(validate(formState.email, "email"));
+  };
+
+  const cancelSubmit = () => {
+    navigate("/");
+  };
+
   return (
     <div className="max-w-full h-[100vh] flex justify-center items-center">
       <div className="w-[400px] h-auto flex flex-col justify-between items-center gap-20">
-        <Link to="#">
+        <Link to="/">
           <img src={qencodeIcon} alt="main_logo" />
         </Link>
         <div className="w-[400px] h-auto flex flex-col justify-between items-center">
@@ -30,6 +46,7 @@ const ForgotPassword: FC = () => {
               name="email"
               placeholder="Enter your Email"
               value={formState.email}
+              errors={errors}
               onChange={(value: string) => handleChangeInput("email", value)}
             />
           </div>
@@ -42,6 +59,7 @@ const ForgotPassword: FC = () => {
               fontStyle="font-basis text-base font-medium"
               textColor="text-white"
               label="Send"
+              onClick={handleSubmit}
             />
             <Button
               width="w-full"
@@ -51,6 +69,7 @@ const ForgotPassword: FC = () => {
               fontStyle="font-basis text-base font-medium"
               textColor="text-basicDark"
               label="Cancel"
+              onClick={cancelSubmit}
             />
           </div>
         </div>

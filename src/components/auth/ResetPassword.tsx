@@ -2,8 +2,9 @@ import { FC, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { Button } from "../Button";
-import Input from "../Input";
+import { Input } from "../Input";
 import qencodeIcon from "../../assets/img/main_logo.svg";
+import validate from "../../utils/validate";
 
 const ResetPassword: FC = () => {
   const [formState, setFormState] = useState<{
@@ -11,14 +12,38 @@ const ResetPassword: FC = () => {
     passwordConfirm: string;
   }>({ password: "", passwordConfirm: "" });
 
+  const [errors, setErrors] = useState<
+    Record<"password" | "passwordConfirm", { value: string; error: boolean }>
+  >({
+    password: { value: "", error: false },
+    passwordConfirm: { value: "", error: false },
+  });
+
   const handleChangeInput = (name: string, value: string) => {
     setFormState({ ...formState, [name]: value });
+  };
+
+  const handleSubmit = () => {
+    setErrors({
+      ...errors,
+      password: validate(formState.password, "password"),
+    });
+    setErrors(prevErrors => {
+      return {
+        ...prevErrors,
+        passwordConfirm: validate(
+          formState.passwordConfirm,
+          "confirm",
+          formState.password
+        ),
+      };
+    });
   };
 
   return (
     <div className="max-w-full h-[100vh] flex justify-center items-center">
       <div className="w-[400px] h-auto flex flex-col justify-between items-center gap-20">
-        <Link to="#">
+        <Link to="/">
           <img src={qencodeIcon} alt="main_logo" />
         </Link>
         <div className="w-[400px] h-auto flex flex-col justify-between items-center">
@@ -35,6 +60,7 @@ const ResetPassword: FC = () => {
                 name="password"
                 placeholder="Password"
                 value={formState.password}
+                errors={errors.password}
                 onChange={(value: string) =>
                   handleChangeInput("password", value)
                 }
@@ -49,6 +75,7 @@ const ResetPassword: FC = () => {
                 name="passwordConfirm"
                 placeholder="Password"
                 value={formState.passwordConfirm}
+                errors={errors.passwordConfirm}
                 onChange={(value: string) =>
                   handleChangeInput("passwordConfirm", value)
                 }
@@ -64,6 +91,7 @@ const ResetPassword: FC = () => {
               fontStyle="font-basis text-base font-medium"
               textColor="text-white"
               label="Reset Password"
+              onClick={handleSubmit}
             />
           </div>
         </div>

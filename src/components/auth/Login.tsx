@@ -1,11 +1,13 @@
 import { useState, type FC } from "react";
+import axios from "axios";
 import { Link } from "react-router-dom";
 
 import { Button } from "../Button";
-import Input from "../Input";
+import { Input } from "../Input";
 import qencodeIcon from "../../assets/img/main_logo.svg";
 import googleIcon from "../../assets/img/google_logo.svg";
 import githubIcon from "../../assets/img/github_logo.svg";
+import validate from "../../utils/validate";
 
 const Login: FC = () => {
   const [formState, setFormState] = useState<{
@@ -16,14 +18,31 @@ const Login: FC = () => {
     password: "",
   });
 
+  const [errors, setErrors] = useState<
+    Record<"password" | "email", { value: string; error: boolean }>
+  >({
+    password: { value: "", error: false },
+    email: { value: "", error: false },
+  });
+
   const handleChangeInput = (name: string, value: string) => {
     setFormState({ ...formState, [name]: value });
+  };
+
+  const submitData = () => {
+    setErrors({ ...errors, email: validate(formState.email, "email") });
+    setErrors(prevErors => {
+      return {
+        ...prevErors,
+        password: validate(formState.password, "password"),
+      };
+    });
   };
 
   return (
     <div className="max-w-full h-[100vh] flex justify-center items-center">
       <div className="w-[400px] h-auto flex flex-col justify-between items-center gap-20">
-        <Link to="#">
+        <Link to="/">
           <img src={qencodeIcon} alt="main_logo" />
         </Link>
         <div className="w-[400px] h-auto flex flex-col justify-between items-center">
@@ -65,6 +84,7 @@ const Login: FC = () => {
               name="email"
               placeholder="Enter your Email"
               value={formState.email}
+              errors={errors.email}
               onChange={(value: string) => handleChangeInput("email", value)}
             />
             <Input
@@ -72,6 +92,7 @@ const Login: FC = () => {
               name="password"
               placeholder="Enter your password"
               value={formState.password}
+              errors={errors.password}
               onChange={(value: string) => handleChangeInput("password", value)}
             />
           </div>
@@ -90,6 +111,7 @@ const Login: FC = () => {
             fontStyle="font-basis text-base font-medium"
             textColor="text-white"
             label="Log in to Qencode"
+            onClick={submitData}
           />
           <div className="flex justify-center items-center mt-5">
             <span className="font-basis text-sm font-medium text-gray-900">
